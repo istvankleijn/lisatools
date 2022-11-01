@@ -1,16 +1,38 @@
 class Holding:
-    """A fund held in a certain number of units together with the target allocation fraction"""
+    """
+    Specification of a fund with units held and target allocation.
+    
+    Attributes
+    ----------
+    fund : lisatools.fund.Fund
+        Details inherent to the fund.
+    units : float, default 1.0
+        Number of units held in the portfolio line (non-negative).
+    target_fraction : float, default 0.0
+        Fraction of the total portfolio that should be allocated towards the
+        fund in question. Expected to be between 0 and 1.
+    
+    Example
+    --------
+
+    Constructing a Holding from a `Fund`, number of units and target allocation.
+    
+    >>> f = lisatools.fund.Fund()
+    >>> lisatools.portfolio.Holding(f, 1.234, 0.5)
+    """
+
     def __init__(self, fund, units = 1.0, target_fraction = 0.0):
         self.fund = fund
         self.units = units
         self.target_fraction = target_fraction
     
     def value(self):
+        """The value of the holding based on the latest fund price available."""
         return self.units * self.fund.price
 
 
 class Portfolio(list):
-    """A collection of funds held in defined proportions"""
+    """A collection of funds held in defined amounts with target allocations."""
     def total_value(self):
         return sum(holding.value() for holding in self)
 
