@@ -34,7 +34,7 @@ class Portfolio(list):
                 total_value = self.total_value() + value_new
                 target = value_new / total_value            
             holding = Holding(fund, units, target)
-            self.add_holding(fund, holding)
+            self.add_holding(holding)
         else:
             units = value / fund.price
             self.add_fund(fund, units=units, target=target)
