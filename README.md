@@ -1,11 +1,11 @@
-# portfoliotools
+# lisatools
 
-Tools for monitoring my fund portfolio.
+Tools for monitoring my Lifetime ISA portfolio.
 
 ## Installation
 
 ```bash
-$ pip install portfoliotools
+$ pip install lisatools
 ```
 
 ## Usage
@@ -18,8 +18,8 @@ Interested in contributing? Check out the contributing guidelines. Please note t
 
 ## License
 
-`portfoliotools` was created by Istvan Kleijn. It is licensed under the terms of the MIT license.
+`lisatools` was created by Istvan Kleijn. It is licensed under the terms of the MIT license.
 
 ## Credits
 
-`portfoliotools` was created with [`cookiecutter`](https://cookiecutter.readthedocs.io/en/latest/) and the `py-pkgs-cookiecutter` [template](https://github.com/py-pkgs/py-pkgs-cookiecutter).
+`lisatools` was created with [`cookiecutter`](https://cookiecutter.readthedocs.io/en/latest/) and the `py-pkgs-cookiecutter` [template](https://github.com/py-pkgs/py-pkgs-cookiecutter).
