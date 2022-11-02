@@ -4,7 +4,7 @@ class Holding:
     
     Attributes
     ----------
-    fund : lisatools.fund.Fund
+    fund : lisatools.Fund
         Details inherent to the fund.
     units : float, default 1.0
         Number of units held in the portfolio line (non-negative).
@@ -17,8 +17,8 @@ class Holding:
 
     Constructing a Holding from a `Fund`, number of units and target allocation.
     
-    >>> f = lisatools.fund.Fund()
-    >>> lisatools.portfolio.Holding(f, 1.234, 0.5)
+    >>> f = lisatools.Fund()
+    >>> lisatools.Holding(f, 1.234, 0.5)
     """
 
     def __init__(self, fund, units = 1.0, target_fraction = 0.0):
