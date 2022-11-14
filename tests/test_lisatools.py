@@ -38,3 +38,40 @@ def test_holding_value(p, u, res):
     f = lisatools.Fund(price = p)
     h = lisatools.Holding(f, units = u)
     assert h.value() == pytest.approx(res)
+
+def test_portfolio_add_fund(ftse_global):
+    pf = lisatools.Portfolio()
+    pf.add_fund(ftse_global)
+    assert pf[0].fund.description == "FTSE Global All Cap Index Fund"
+    assert pf[0].units == pytest.approx(1.0)
+    assert pf[0].target_fraction == pytest.approx(1.0)
+
+def test_portfolio_integration(ftse_global):
+    pf = lisatools.Portfolio()
+    pf.add_fund(ftse_global)
+    target_fund = lisatools.Fund("New target", 2.0)
+    pf.add_target(target_fund, 0.4)
+    assert pf[0].target_fraction == pytest.approx(0.6)
+    assert pf[1].target_fraction == pytest.approx(0.4)
+
+@pytest.mark.parametrize(
+    "price2, frac1",
+    [
+        (2.0, 0.6),
+        (2.0, 0.7),
+        (0.5, 0.6)
+    ]
+)
+def test_target_portfolio(price2, frac1, ftse_global):    
+    frac2 = 1.0 - frac1
+    f2 = lisatools.Fund("Fund 2", price2)
+    pf = lisatools.Portfolio()
+    pf.add_fund(ftse_global)
+    pf.add_target(f2, frac2)
+    tpf = pf.target_portfolio()
+    tpf_total = tpf.total_value()
+    assert tpf_total == pytest.approx(pf.total_value())
+    assert tpf[0].value() == pytest.approx(frac1*tpf_total)
+    assert tpf[1].value() == pytest.approx(frac2*tpf_total)
+    assert tpf[0].target_fraction == pytest.approx(frac1)
+    assert tpf[1].target_fraction == pytest.approx(frac2)

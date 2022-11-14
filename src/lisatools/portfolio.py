@@ -47,20 +47,30 @@ class Portfolio(list):
             for holding in self:
                 holding.target_fraction /= 1.0 + new_holding.target_fraction
         
-        assert sum(holding.target_fraction for holding in self) == 1.0
+        # assert sum(holding.target_fraction for holding in self) == 1.0
     
-    def add_fund(self, fund, *, value=None, units=1.0, target="auto"):
+    def add_fund(self, fund, *, value=None, units=1.0, target="auto", **kwargs):
         if value is None:
             if target == "auto":
                 value_new = units * fund.price
                 total_value = self.total_value() + value_new
                 target = value_new / total_value            
             holding = Holding(fund, units, target)
-            self.add_holding(holding)
+            self.add_holding(holding, **kwargs)
         else:
             units = value / fund.price
-            self.add_fund(fund, units=units, target=target)
+            self.add_fund(fund, units=units, target=target, **kwargs)
     
     def add_target(self, fund, target):
         holding = Holding(fund, 0.0, target)
         self.add_holding(holding)
+    
+    def target_portfolio(self, update_prices=False):
+        total_value = self.total_value()
+        target = Portfolio()
+        for orig in self:
+            target_value = orig.target_fraction * total_value
+            target_units = target_value / orig.fund.price
+            holding = Holding(orig.fund, target_units, orig.target_fraction)
+            target.append(holding)
+        return target
