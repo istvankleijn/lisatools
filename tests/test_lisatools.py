@@ -6,14 +6,27 @@ import pytest
 @pytest.fixture
 def ftse_global():
     d = "FTSE Global All Cap Index Fund"
-    f = lisatools.Fund(d, 123.45)
+    f = lisatools.Fund(d, 100.0)
     return f
+
+@pytest.fixture
+def long_gilts():
+    d = "UK Long-term Gilts"
+    f = lisatools.Fund(d, 50.0)
+    return f
+
+@pytest.fixture
+def two_fund_6040(ftse_global, long_gilts):
+    h1 = lisatools.Holding(ftse_global, 1.0, 0.6)
+    h2 = lisatools.Holding(long_gilts, 2.0, 0.4)
+    pf = lisatools.Portfolio([h1, h2])
+    return pf
 
 def test_fund_init(ftse_global):
     """Test the constructor of the `Fund` class"""
     f = ftse_global
     assert f.description == "FTSE Global All Cap Index Fund"
-    assert f.price == 123.45
+    assert f.price == 100.0
     assert f.isin is None
     assert f.date == datetime.date.today()
 
@@ -75,3 +88,12 @@ def test_target_portfolio(price2, frac1, ftse_global):
     assert tpf[1].value() == pytest.approx(frac2*tpf_total)
     assert tpf[0].target_fraction == pytest.approx(frac1)
     assert tpf[1].target_fraction == pytest.approx(frac2)
+
+def test_trade_to_target(two_fund_6040, ftse_global, long_gilts):
+    buy, sell = two_fund_6040.trade_to_target()
+    assert buy[0].fund == ftse_global
+    assert buy[0].units == pytest.approx(0.2)
+    assert buy[0].target_fraction == pytest.approx(0.6)
+    assert sell[0].fund == long_gilts
+    assert sell[0].units == pytest.approx(0.4)
+    assert sell[0].target_fraction == pytest.approx(0.4)

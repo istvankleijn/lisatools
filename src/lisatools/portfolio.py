@@ -29,7 +29,7 @@ class Holding:
     def value(self):
         """The value of the holding based on the latest fund price available."""
         return self.units * self.fund.price
-
+    
 
 class Portfolio(list):
     """A collection of funds held in defined amounts with target allocations."""
@@ -74,3 +74,39 @@ class Portfolio(list):
             holding = Holding(orig.fund, target_units, orig.target_fraction)
             target.append(holding)
         return target
+    
+    def trade_to_target(self, target_portfolio=None):
+        """
+        Return the required buy and sell instructions to reach the target
+        portfolio.
+
+        Arguments
+        ---------
+        target_portfolio : lisatools.Portfolio or None, default None
+            Target to rebalance the portfolio into. If unspecified, calculate
+            this based on the target allocations defined by `target_fraction`s.
+
+        Returns
+        -------
+        buy : lisatools.Portfolio
+            Funds to purchase to reach the target. Positive `units` values
+            indicate the number of units that must be bought.
+        sell : lisatools.Portfolio
+            Funds to sell to reach the target. Positive `units` values indicate
+            the number of units that must be sold.
+        """
+        if target_portfolio is None:
+            target_portfolio = self.target_portfolio()
+
+        buy = []
+        sell = []
+        for orig, target in zip(self, target_portfolio):
+            diff = target.units - orig.units
+            if diff > 0:
+                trade = Holding(orig.fund, diff, orig.target_fraction)
+                buy.append(trade)
+            elif diff < 0:
+                trade = Holding(orig.fund, -diff, orig.target_fraction)
+                sell.append(trade)
+        
+        return buy, sell
