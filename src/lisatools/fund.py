@@ -43,6 +43,12 @@ class Fund:
         self.isin = isin       
         self.update_price(price, date=date)
     
+    def __repr__(self):
+        return (
+            f"Fund({self.description!r}, {self.price!r}, "
+            f"date={self.date!r}, isin={self.isin!r})"
+        )
+    
     def update_price(self, price, *, date=datetime.date.today()):
         """Set the price of the fund to the given value. Specify the date when
         the fund had the given price by the keyword `date`. If left unspecified,

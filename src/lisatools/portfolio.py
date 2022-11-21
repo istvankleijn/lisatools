@@ -20,11 +20,15 @@ class Holding:
     >>> f = lisatools.Fund()
     >>> lisatools.Holding(f, 1.234, 0.5)
     """
-
     def __init__(self, fund, units = 1.0, target_fraction = 0.0):
         self.fund = fund
         self.units = units
         self.target_fraction = target_fraction
+    
+    def __repr__(self):
+        return (
+            f"Holding({self.fund!r}, {self.units!r}, {self.target_fraction!r})"
+        )
     
     def value(self):
         """The value of the holding based on the latest fund price available."""
@@ -33,6 +37,10 @@ class Holding:
 
 class Portfolio(list):
     """A collection of funds held in defined amounts with target allocations."""
+    def __repr__(self):
+        holdings_repr = ", ".join(f"{holding!r}" for holding in self)
+        return "Portfolio(" + holdings_repr + ")"
+
     def total_value(self):
         return sum(holding.value() for holding in self)
 
