@@ -128,6 +128,8 @@ def test_target_portfolio(price2, frac1, ftse_global):
 
 def test_trade_to_target(two_fund_6040, ftse_global, long_gilts):
     buy, sell = two_fund_6040.trade_to_target()
+    assert type(buy) == lisatools.Portfolio
+    assert type(sell) == lisatools.Portfolio
     assert buy[0].fund == ftse_global
     assert buy[0].units == pytest.approx(0.2)
     assert buy[0].target_fraction == pytest.approx(0.6)

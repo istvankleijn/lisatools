@@ -10,7 +10,7 @@ class Fund:
     ----------
     description : str
         Description of the fund, for example the name given by its provider.
-    price : float
+    price : float, default 1.0
         Latest market price available for the fund.
     isin : str, default "None"
         If a real fund, the International Securities Identification Number

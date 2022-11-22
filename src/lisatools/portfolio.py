@@ -130,8 +130,8 @@ class Portfolio(list):
         if target_portfolio is None:
             target_portfolio = self.target_portfolio()
 
-        buy = []
-        sell = []
+        buy = Portfolio()
+        sell = Portfolio()
         for orig, target in zip(self, target_portfolio):
             diff = target.units - orig.units
             if diff > 0:
