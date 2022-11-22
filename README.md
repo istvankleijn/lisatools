@@ -38,7 +38,7 @@ buy, sell = pf.trade_to_target()
 print("Buy:\n=====", buy, "\nSell:\n=====", sell, sep = "\n")
 ```
 
-A more elaborate example is provided [here](/docs/example.ipynb).
+[A more elaborate example](/docs/example.ipynb) is provided in the /docs/ folder.
 
 ## License
 
