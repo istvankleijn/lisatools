@@ -12,9 +12,9 @@ class Fund:
         Description of the fund, for example the name given by its provider.
     price : float
         Latest market price available for the fund.
-    isin : str or None
+    isin : str, default "None"
         If a real fund, the International Securities Identification Number
-        (ISIN) of the fund, otherwise None.
+        (ISIN) of the fund should be specified.
         The ISIN is a unique 12-character alphanumerical identifier.
     date : datetime.date
         Date at which the `price` was last updated.
@@ -37,10 +37,10 @@ class Fund:
                  description="Default fund",
                  price=1.0,
                  *,
-                 isin=None,
+                 isin="None",  # UNSPECIFIED9 is a valid ISIN
                  date=datetime.date.today()):
-        self.description = description        
-        self.isin = isin       
+        self.description = description
+        self.isin = isin   
         self.update_price(price, date=date)
     
     def __repr__(self):

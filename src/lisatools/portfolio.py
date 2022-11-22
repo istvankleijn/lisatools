@@ -1,3 +1,8 @@
+_str_prefix = """
+Description                       Units    Value Target ISIN         Date
+------------------------------ -------- -------- ------ ------------ ----------
+""".strip()
+
 class Holding:
     """
     Specification of a fund with units held and target allocation.
@@ -30,9 +35,24 @@ class Holding:
             f"Holding({self.fund!r}, {self.units!r}, {self.target_fraction!r})"
         )
     
+    def __str__(self):
+        line = self._str_line()
+        return _str_prefix + "\n" + line
+    
     def value(self):
         """The value of the holding based on the latest fund price available."""
         return self.units * self.fund.price
+    
+    def _str_line(self):
+        line = " ".join([
+            f"{self.fund.description:<30}",
+            f"{self.units:>8.4f}",
+            f"{self.value():>8.2f}",
+            f"{self.target_fraction:>6.4f}",
+            f"{self.fund.isin:<12}",
+            f"{self.fund.date:%Y-%m-%d}"
+        ])
+        return line
     
 
 class Portfolio(list):
@@ -40,6 +60,10 @@ class Portfolio(list):
     def __repr__(self):
         holdings_repr = ", ".join(f"{holding!r}" for holding in self)
         return "Portfolio(" + holdings_repr + ")"
+    
+    def __str__(self):
+        lines = "\n".join(holding._str_line() for holding in self)
+        return _str_prefix + "\n" + lines
 
     def total_value(self):
         return sum(holding.value() for holding in self)

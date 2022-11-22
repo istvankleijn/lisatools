@@ -6,7 +6,7 @@ import pytest
 @pytest.fixture
 def ftse_global():
     d = "FTSE Global All Cap Index Fund"
-    f = lisatools.Fund(d, 100.0)
+    f = lisatools.Fund(d, 100.0, isin="GB00BD3RZ582")
     return f
 
 @pytest.fixture
@@ -27,14 +27,14 @@ def test_fund_init(ftse_global):
     f = ftse_global
     assert f.description == "FTSE Global All Cap Index Fund"
     assert f.price == 100.0
-    assert f.isin is None
+    assert f.isin is "GB00BD3RZ582"
     assert f.date == datetime.date.today()
 
 def test_fund_repr(ftse_global):
     """Test the developer representation of the `Fund` class"""
     f = ftse_global
     assert repr(f) == f"Fund({f.description!r}, {f.price!r}, " \
-                      f"date={f.date!r}, isin={f.isin})"
+                      f"date={f.date!r}, isin={f.isin!r})"
 
 def test_fund_update_price(ftse_global):
     """Test the `update_price` method of the `Fund` class."""
@@ -42,7 +42,7 @@ def test_fund_update_price(ftse_global):
     f.update_price(170.14, date=datetime.date(2022, 11, 1))
     assert f.description == ftse_global.description
     assert f.price == 170.14
-    assert f.isin is None
+    assert f.isin is "GB00BD3RZ582"
     assert f.date == datetime.date(2022, 11, 1)
 
 def test_holding_repr(ftse_global):
@@ -50,6 +50,16 @@ def test_holding_repr(ftse_global):
     h = lisatools.Holding(ftse_global)
     assert repr(h) == f"Holding({h.fund!r}, " \
                       f"{h.units!r}, {h.target_fraction!r})"
+
+def test_holding_str(ftse_global):
+    """Test the user string function for the `Holding` class"""
+    holding = lisatools.Holding(ftse_global, 1.0, 0.6)
+    expected = """
+Description                       Units    Value Target ISIN         Date
+------------------------------ -------- -------- ------ ------------ ----------
+FTSE Global All Cap Index Fund   1.0000   100.00 0.6000 GB00BD3RZ582 2022-11-22
+    """.strip()
+    assert str(holding) == expected
 
 @pytest.mark.parametrize(
     "p, u, res",
@@ -68,6 +78,16 @@ def test_portfolio_repr(two_fund_6040):
     holdings_repr = [repr(holding) for holding in two_fund_6040]
     expected = "Portfolio(" + ", ".join(holdings_repr) + ")"
     assert repr(two_fund_6040) == expected
+
+def test_portfolio_str(two_fund_6040):
+    """Test the user string function for the `Portfolio` class"""
+    expected = """
+Description                       Units    Value Target ISIN         Date
+------------------------------ -------- -------- ------ ------------ ----------
+FTSE Global All Cap Index Fund   1.0000   100.00 0.6000 GB00BD3RZ582 2022-11-22
+UK Long-term Gilts               2.0000   100.00 0.4000 None         2022-11-22
+    """.strip()
+    assert str(two_fund_6040) == expected
 
 def test_portfolio_add_fund(ftse_global):
     pf = lisatools.Portfolio()
