@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.0 (2022-11-23)
+
+- First public release!
+- Bugfixes
+- Rewritten tests
+- Expanded documentation
+
 ## v0.0.3 (2022-11-22)
 
 - Implemented target portfolio and trades to reach it
