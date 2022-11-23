@@ -132,15 +132,15 @@ class Portfolio(list):
         Fund 3                           1.0000     1.00 0.5000 None         2022-11-23
         Fund 4                           1.0000     1.00 0.5000 None         2022-11-23
         """
-        if scale_orig:
+        if scale_new:
+            self.append(new_holding)
+            for holding in self:
+                holding.target_fraction /= 1.0 + new_holding.target_fraction
+        else:
             scale_factor = 1.0 - new_holding.target_fraction
             for holding in self:
                 holding.target_fraction *= scale_factor
             self.append(new_holding)
-        else:
-            self.append(new_holding)
-            for holding in self:
-                holding.target_fraction /= 1.0 + new_holding.target_fraction
     
     def add_fund(self, fund, *, value=None, units=1.0, target=None, **kwargs):
         """
