@@ -6,7 +6,7 @@ class Fund:
     """
     Details of a fund, including its current market price.
     
-    Attributes
+    Parameters
     ----------
     description : str
         Description of the fund, for example the name given by its provider.
@@ -50,9 +50,17 @@ class Fund:
         )
     
     def update_price(self, price, *, date=datetime.date.today()):
-        """Set the price of the fund to the given value. Specify the date when
-        the fund had the given price by the keyword `date`. If left unspecified,
-        set the date to today.
+        """
+        Set the price of the fund to a given value and optionally specify the
+        date at which this price is correct.
+
+        Parameters
+        ----------
+        price : float
+            The new price of one unit of the fund.
+        date : datetime.date, optional
+            The date when the fund had the given price. If left unspecified, the
+            date is set to the current one (at runtime).
         """
         self.price = price
         self.date = date
