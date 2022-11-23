@@ -5,30 +5,43 @@ import pytest
 
 @pytest.fixture
 def ftse_global():
-    d = "FTSE Global All Cap Index Fund"
-    f = lisatools.Fund(d, 100.0, isin="GB00BD3RZ582")
+    f = lisatools.Fund(
+        "FTSE Global All Cap Index Fund",
+        172.14,
+        isin="GB00BD3RZ582",
+        date=datetime.date(2022, 11, 21)
+    )
     return f
 
 @pytest.fixture
-def long_gilts():
-    d = "UK Long-term Gilts"
-    f = lisatools.Fund(d, 50.0)
+def gilts():
+    f = lisatools.Fund(
+        "U.K. Gilt UCITS ETF (VGOV)",
+        18.58,
+        isin="IE00B42WWV65",
+        date=datetime.date(2022, 11, 21)
+    )
     return f
 
 @pytest.fixture
-def two_fund_6040(ftse_global, long_gilts):
+def two_fund_6040(ftse_global, gilts):
     h1 = lisatools.Holding(ftse_global, 1.0, 0.6)
-    h2 = lisatools.Holding(long_gilts, 2.0, 0.4)
+    h2 = lisatools.Holding(gilts, 5.0, 0.4)
     pf = lisatools.Portfolio([h1, h2])
     return pf
+
+@pytest.fixture
+def two_fund_6040_target(two_fund_6040):
+    tpf = two_fund_6040.target_portfolio()
+    return tpf
 
 def test_fund_init(ftse_global):
     """Test the constructor of the `Fund` class"""
     f = ftse_global
     assert f.description == "FTSE Global All Cap Index Fund"
-    assert f.price == 100.0
+    assert f.price == 172.14
     assert f.isin is "GB00BD3RZ582"
-    assert f.date == datetime.date.today()
+    assert f.date == datetime.date(2022, 11, 21)
 
 def test_fund_repr(ftse_global):
     """Test the developer representation of the `Fund` class"""
@@ -57,7 +70,7 @@ def test_holding_str(ftse_global):
     expected = """
 Description                       Units    Value Target ISIN         Date
 ------------------------------ -------- -------- ------ ------------ ----------
-FTSE Global All Cap Index Fund   1.0000   100.00 0.6000 GB00BD3RZ582 2022-11-22
+FTSE Global All Cap Index Fund   1.0000   172.14 0.6000 GB00BD3RZ582 2022-11-21
     """.strip()
     assert str(holding) == expected
 
@@ -65,7 +78,7 @@ FTSE Global All Cap Index Fund   1.0000   100.00 0.6000 GB00BD3RZ582 2022-11-22
     "p, u, res",
     [
         (2.0, 3.0, 6.0),
-        (2.5, 1.0, 2.5)
+        (2.5, 1.0, 2.5),
     ]
 )
 def test_holding_value(p, u, res):
@@ -84,55 +97,91 @@ def test_portfolio_str(two_fund_6040):
     expected = """
 Description                       Units    Value Target ISIN         Date
 ------------------------------ -------- -------- ------ ------------ ----------
-FTSE Global All Cap Index Fund   1.0000   100.00 0.6000 GB00BD3RZ582 2022-11-22
-UK Long-term Gilts               2.0000   100.00 0.4000 None         2022-11-22
+FTSE Global All Cap Index Fund   1.0000   172.14 0.6000 GB00BD3RZ582 2022-11-21
+U.K. Gilt UCITS ETF (VGOV)       5.0000    92.90 0.4000 IE00B42WWV65 2022-11-21
     """.strip()
     assert str(two_fund_6040) == expected
 
-def test_portfolio_add_fund(ftse_global):
+@pytest.mark.parametrize(
+    "scale_new, res1, res2",
+    [
+        (True, 1.0/1.5, 0.5/1.5),
+        (False, 0.5, 0.5),
+    ]
+)
+def test_portfolio_add_holding(ftse_global, gilts, scale_new, res1, res2):
+    h1 = lisatools.Holding(ftse_global, 1.0, 1.0)
+    h2 = lisatools.Holding(gilts, 1.0, 0.5)
+    pf = lisatools.Portfolio([h1])
+    pf.add_holding(h2, scale_new=scale_new)
+    assert pf[0].fund == ftse_global
+    assert pf[0].units == 1.0
+    assert pf[0].target_fraction == pytest.approx(res1)
+    assert pf[1].fund == gilts
+    assert pf[1].units == 1.0
+    assert pf[1].target_fraction == pytest.approx(res2)
+
+@pytest.mark.parametrize(
+    "value, target",
+    [
+        (None, None),
+        (None, 1.0),
+        (172.14, None),
+        (172.14, 1.0),
+    ]
+)
+def test_portfolio_add_fund(ftse_global, value, target):
     pf = lisatools.Portfolio()
-    pf.add_fund(ftse_global)
+    # Adding a holding to an empty portfolio means that the new allocation must
+    # not be scaled, because the empty portfolio does not comply with 
+    # sum(allocs) == 1.0
+    pf.add_fund(ftse_global, value=value, target=target, scale_new=False)
     assert pf[0].fund.description == "FTSE Global All Cap Index Fund"
     assert pf[0].units == pytest.approx(1.0)
     assert pf[0].target_fraction == pytest.approx(1.0)
 
-def test_portfolio_integration(ftse_global):
-    pf = lisatools.Portfolio()
-    pf.add_fund(ftse_global)
-    target_fund = lisatools.Fund("New target", 2.0)
-    pf.add_target(target_fund, 0.4)
-    assert pf[0].target_fraction == pytest.approx(0.6)
-    assert pf[1].target_fraction == pytest.approx(0.4)
-
 @pytest.mark.parametrize(
-    "price2, frac1",
+    "scale_new, res1, res2",
     [
-        (2.0, 0.6),
-        (2.0, 0.7),
-        (0.5, 0.6)
+        (True, 1.0/1.4, 0.4/1.4),
+        (False, 0.6, 0.4),
     ]
 )
-def test_target_portfolio(price2, frac1, ftse_global):    
-    frac2 = 1.0 - frac1
-    f2 = lisatools.Fund("Fund 2", price2)
+def test_portfolio_add_target(ftse_global, gilts, scale_new, res1, res2):
     pf = lisatools.Portfolio()
-    pf.add_fund(ftse_global)
-    pf.add_target(f2, frac2)
-    tpf = pf.target_portfolio()
-    tpf_total = tpf.total_value()
-    assert tpf_total == pytest.approx(pf.total_value())
-    assert tpf[0].value() == pytest.approx(frac1*tpf_total)
-    assert tpf[1].value() == pytest.approx(frac2*tpf_total)
-    assert tpf[0].target_fraction == pytest.approx(frac1)
-    assert tpf[1].target_fraction == pytest.approx(frac2)
+    pf.add_fund(ftse_global, scale_new=False)
+    pf.add_target(gilts, 0.4, scale_new=scale_new)
+    assert pf[0].target_fraction == pytest.approx(res1)
+    assert pf[1].target_fraction == pytest.approx(res2)
 
-def test_trade_to_target(two_fund_6040, ftse_global, long_gilts):
-    buy, sell = two_fund_6040.trade_to_target()
+def test_target_portfolio(two_fund_6040):
+    frac1 = two_fund_6040[0].target_fraction
+    frac2 = two_fund_6040[1].target_fraction
+    target_pf = two_fund_6040.target_portfolio()
+    tpf_total = target_pf.total_value()
+    assert tpf_total == pytest.approx(two_fund_6040.total_value())
+    assert target_pf[0].value() == pytest.approx(frac1*tpf_total)
+    assert target_pf[1].value() == pytest.approx(frac2*tpf_total)
+    assert target_pf[0].target_fraction == pytest.approx(frac1)
+    assert target_pf[1].target_fraction == pytest.approx(frac2)
+
+@pytest.mark.parametrize("use_target", [True, False])
+def test_trade_to_target(
+        two_fund_6040,
+        two_fund_6040_target,
+        ftse_global,
+        gilts,
+        use_target):
+    if use_target:
+        buy, sell = two_fund_6040.trade_to_target(two_fund_6040_target)
+    else:
+        buy, sell = two_fund_6040.trade_to_target()
+    
     assert type(buy) == lisatools.Portfolio
     assert type(sell) == lisatools.Portfolio
-    assert buy[0].fund == ftse_global
-    assert buy[0].units == pytest.approx(0.2)
-    assert buy[0].target_fraction == pytest.approx(0.6)
-    assert sell[0].fund == long_gilts
-    assert sell[0].units == pytest.approx(0.4)
-    assert sell[0].target_fraction == pytest.approx(0.4)
+    assert buy[0].fund == gilts
+    assert buy[0].units == pytest.approx(0.7059203444564046)
+    assert buy[0].target_fraction == pytest.approx(0.4)
+    assert sell[0].fund == ftse_global
+    assert sell[0].units == pytest.approx(0.0761937957476474)
+    assert sell[0].target_fraction == pytest.approx(0.6)
