@@ -40,7 +40,7 @@ class Fund:
                  isin="None",  # UNSPECIFIED9 is a valid ISIN
                  date=datetime.date.today()):
         self.description = description
-        self.isin = isin   
+        self.isin = isin
         self.update_price(price, date=date)
     
     def __repr__(self):
@@ -64,3 +64,27 @@ class Fund:
         """
         self.price = price
         self.date = date
+
+
+class ETF(Fund):
+    def __init__(self,
+                 name,
+                 price=1.0,
+                 *,
+                 ticker=None,
+                 isin="None",
+                 date=datetime.date.today()):
+        self.name = name
+        if ticker is None:
+            self.description = name
+        else:
+            self.description = f"{ticker}: {name}"
+        self.ticker = ticker
+        self.isin = isin
+        self.update_price(price, date=date)
+    
+    def __repr__(self):
+        return (
+            f"ETF({self.name!r}, {self.price!r}, "
+            f"date={self.date!r}, isin={self.isin!r}, ticker={self.ticker!r})"
+        )

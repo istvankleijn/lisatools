@@ -1,3 +1,4 @@
+import bs4
 import datetime
 import lisatools
 import pytest
@@ -14,14 +15,25 @@ def ftse_global():
     return f
 
 @pytest.fixture
+def ftse_global_url():
+    return "https://markets.ft.com/data/funds/tearsheet/historical?" \
+           "s=GB00BD3RZ582:GBP"
+
+@pytest.fixture
 def gilts():
-    f = lisatools.Fund(
-        "U.K. Gilt UCITS ETF (VGOV)",
+    f = lisatools.ETF(
+        "U.K. Gilt UCITS ETF",
         18.58,
+        ticker="VGOV",
         isin="IE00B42WWV65",
         date=datetime.date(2022, 11, 21)
     )
     return f
+
+@pytest.fixture
+def gilts_url():
+    return "https://markets.ft.com/data/etfs/tearsheet/historical?" \
+           "s=VGOV:LSE:GBP"
 
 @pytest.fixture
 def two_fund_6040(ftse_global, gilts):
@@ -57,6 +69,23 @@ def test_fund_update_price(ftse_global):
     assert f.price == 170.14
     assert f.isin is "GB00BD3RZ582"
     assert f.date == datetime.date(2022, 11, 1)
+
+def test_etf_init(gilts):
+    """Test the constructor of the `ETF` class"""
+    f = gilts
+    assert f.name == "U.K. Gilt UCITS ETF"
+    assert f.description == "VGOV: U.K. Gilt UCITS ETF"
+    assert f.price == 18.58
+    assert f.ticker == "VGOV"
+    assert f.isin is "IE00B42WWV65"
+    assert f.date == datetime.date(2022, 11, 21)
+
+def test_etf_repr(gilts):
+    """Test the developer representation of the `ETF` class"""
+    f = gilts
+    expected = f"ETF({f.name!r}, {f.price!r}, " \
+               f"date={f.date!r}, isin={f.isin!r}, ticker={f.ticker!r})"
+    assert repr(f) == expected
 
 def test_holding_repr(ftse_global):
     """Test the developer representation of the `Holding` class"""
@@ -98,7 +127,7 @@ def test_portfolio_str(two_fund_6040):
 Description                       Units    Value Target ISIN         Date
 ------------------------------ -------- -------- ------ ------------ ----------
 FTSE Global All Cap Index Fund   1.0000   172.14 0.6000 GB00BD3RZ582 2022-11-21
-U.K. Gilt UCITS ETF (VGOV)       5.0000    92.90 0.4000 IE00B42WWV65 2022-11-21
+VGOV: U.K. Gilt UCITS ETF        5.0000    92.90 0.4000 IE00B42WWV65 2022-11-21
     """.strip()
     assert str(two_fund_6040) == expected
 
@@ -185,3 +214,24 @@ def test_trade_to_target(
     assert sell[0].fund == ftse_global
     assert sell[0].units == pytest.approx(0.0761937957476474)
     assert sell[0].target_fraction == pytest.approx(0.6)
+
+def test_history_url_Fund(ftse_global, ftse_global_url):
+    url = lisatools.scraping.history_url(ftse_global)
+    assert url == ftse_global_url
+
+def test_history_url_ETF(gilts, gilts_url):
+    url = lisatools.scraping.history_url(gilts)
+    assert url == gilts_url
+
+def test_retrieve_history(ftse_global_url):
+    price_history = lisatools.scraping.retrieve_history(ftse_global_url)
+    assert type(price_history) == bs4.element.Tag
+    assert price_history.name == "table"
+
+def test_latest_price(ftse_global):
+    price, date = lisatools.scraping.latest_price(ftse_global)
+    assert type(price) == float
+    assert 1.0 <= price <= 1.0e5
+    assert type(date) == datetime.date
+    delta = datetime.date.today() - date
+    assert 0 <= delta.days < 7
