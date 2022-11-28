@@ -67,6 +67,49 @@ class Fund:
 
 
 class ETF(Fund):
+    """
+    Details of an exchange-traded fund, including its current market price.
+    
+    Attributes
+    ----------
+    description
+        Description of the ETF. By default, this will be equal to the ticker
+        symbol and the `name` attribute separated by a colon.
+    price : float
+        Latest market price available for the fund.
+    name : str
+        Name of the ETF, for example as given by its provider.
+    isin : str
+        If a real fund, the International Securities Identification Number
+        (ISIN) of the fund should be specified.
+        The ISIN is a unique 12-character alphanumerical identifier.
+    date : datetime.date
+        Date at which the `price` was last updated.
+    
+    Parameters
+    ----------
+    name : str
+    price : float, default 1.0
+    ticker : str or None, default None
+    isin : str, default "None"
+    date : datetime.date, default datetime.date.today()
+
+    Examples
+    --------
+
+    Constructing an ETF from a name and current price.
+    
+    >>> f = lisatools.ETF("U.K. Gilt UCITS ETF", 18.58)
+
+    Constructing a Fund with all optional details.
+
+    >>> f = lisatools.ETF(
+    ...     "U.K. Gilt UCITS ETF",
+    ...     18.58,
+    ...     ticker="VGOV",
+    ...     isin="IE00B42WWV65",
+    ...     date=datetime.date(2022, 11, 21))
+    """
     def __init__(self,
                  name,
                  price=1.0,

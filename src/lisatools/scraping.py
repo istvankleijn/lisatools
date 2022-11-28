@@ -8,6 +8,10 @@ from bs4 import BeautifulSoup
 
 @functools.singledispatch
 def history_url(fund):
+    """
+    Provide the URL to the Financial Times' historical pricing data for a
+    given fund.
+    """
     url = f"https://markets.ft.com/data/funds/tearsheet/historical?" \
           f"s={fund.isin}:GBP"
     return url
@@ -19,6 +23,10 @@ def _(fund):
     return url
 
 def retrieve_history(url):
+    """
+    Find an HTML table from the FT's historical price data page that can be
+    further processed by beautifulsoup.
+    """
     request = requests.get(url)
     soup = BeautifulSoup(request.content, "html.parser")
     price_history = soup.find(
@@ -27,10 +35,11 @@ def retrieve_history(url):
     )
     return price_history
 
-def latest_price(fund):
-    url = history_url(fund)
-    price_history = retrieve_history(url)
-
+def parse_history(price_history):
+    """
+    Extract the latest price and date from an HTML table of fund pricing
+    as provided by the FT.
+    """
     # Parse table to get the latest price information (first row of data)
     body = price_history.find("tbody")
     body_rows = body.find_all("tr")
@@ -53,5 +62,16 @@ def latest_price(fund):
     ).get_text()
     date = datetime.datetime.strptime(date_str, "%a, %b %d, %Y").date()
     price = float(latest_entry[price_index].get_text())
+
+    return price, date
+
+def latest_price(fund):
+    """
+    Return a fund's latest price and matching date using the Financial Times'
+    historical pricing data.
+    """
+    url = history_url(fund)
+    price_history = retrieve_history(url)
+    price, date = parse_history(price_history)
 
     return price, date
