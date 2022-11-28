@@ -2,6 +2,11 @@
 
 <!--next-version-placeholder-->
 
+## v0.2.0 (2022-11-28)
+
+- Added ETF class
+- Implemented price updating using FT data scraping
+
 ## v0.1.0 (2022-11-23)
 
 - First public release!

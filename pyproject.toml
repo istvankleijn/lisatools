@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "lisatools"
-version = "0.2.0-dev"
+version = "0.2.0"
 description = "Tools for monitoring my Lifetime ISA portfolio."
 authors = ["Istvan Kleijn"]
 license = "MIT"
