@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.2.1 (2022-11-28)
+
+- Set up continuous integration
+
 ## v0.2.0 (2022-11-28)
 
 - Added ETF class
