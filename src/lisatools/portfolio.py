@@ -1,3 +1,6 @@
+from lisatools import scraping
+
+
 _str_prefix = """
 Description                       Units    Value Target ISIN         Date
 ------------------------------ -------- -------- ------ ------------ ----------
@@ -264,3 +267,16 @@ class Portfolio(list):
                 sell.append(trade)
         
         return buy, sell
+    
+    def update_prices(self):
+        """
+        Silently update the fund prices and dates for all the funds held in
+        the portfolio.
+
+        This scrapes the Financial Times web site for historical pricing data
+        using the `lisatools.scraping` module. It may take a couple of seconds
+        to run.
+        """
+        for holding in self:
+            price, date = scraping.latest_price(holding.fund)
+            holding.fund.update_price(price, date=date)

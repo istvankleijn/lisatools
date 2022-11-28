@@ -1,4 +1,5 @@
 import bs4
+from copy import deepcopy
 import datetime
 import lisatools
 import pytest
@@ -182,6 +183,22 @@ def test_portfolio_add_target(ftse_global, gilts, scale_new, res1, res2):
     pf.add_target(gilts, 0.4, scale_new=scale_new)
     assert pf[0].target_fraction == pytest.approx(res1)
     assert pf[1].target_fraction == pytest.approx(res2)
+
+def test_portfolio_update_prices(two_fund_6040):
+    pf = deepcopy(two_fund_6040)
+    pf.update_prices()
+    assert pf[0].fund.description == two_fund_6040[0].fund.description
+    assert pf[1].fund.description == two_fund_6040[1].fund.description
+    assert pf[0].units == two_fund_6040[0].units
+    assert pf[1].units == two_fund_6040[1].units
+    assert pf[0].target_fraction == two_fund_6040[0].target_fraction
+    assert pf[1].target_fraction == two_fund_6040[1].target_fraction
+    date1 = pf[0].fund.date
+    delta1 = datetime.date.today() - date1
+    date2 = pf[1].fund.date
+    delta2 = datetime.date.today() - date2
+    assert 0 <= delta1.days < 7
+    assert 0 <= delta2.days < 7
 
 def test_target_portfolio(two_fund_6040):
     frac1 = two_fund_6040[0].target_fraction
