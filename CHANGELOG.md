@@ -2,6 +2,9 @@
 
 <!--next-version-placeholder-->
 
+## v0.2.3 (2022-11-29)
+
+
 ## v0.2.1 (2022-11-29)
 
 - Set up continuous integration
