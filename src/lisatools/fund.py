@@ -17,7 +17,8 @@ class Fund:
         (ISIN) of the fund should be specified.
         The ISIN is a unique 12-character alphanumerical identifier.
     date : datetime.date
-        Date at which the `price` was last updated.
+        Date at which the `price` was last updated. If not specified, will be
+        initialized to the current one (at runtime).
     
     Examples
     --------
@@ -38,7 +39,7 @@ class Fund:
                  price=1.0,
                  *,
                  isin="None",  # UNSPECIFIED9 is a valid ISIN
-                 date=datetime.date.today()):
+                 date=None):
         self.description = description
         self.isin = isin
         self.update_price(price, date=date)
@@ -49,7 +50,7 @@ class Fund:
             f"date={self.date!r}, isin={self.isin!r})"
         )
     
-    def update_price(self, price, *, date=datetime.date.today()):
+    def update_price(self, price, *, date=None):
         """
         Set the price of the fund to a given value and optionally specify the
         date at which this price is correct.
@@ -58,12 +59,12 @@ class Fund:
         ----------
         price : float
             The new price of one unit of the fund.
-        date : datetime.date, optional
+        date : datetime.date or None, default None
             The date when the fund had the given price. If left unspecified, the
             date is set to the current one (at runtime).
         """
         self.price = price
-        self.date = date
+        self.date = date if date is not None else datetime.date.today()
 
 
 class ETF(Fund):
@@ -84,7 +85,8 @@ class ETF(Fund):
         (ISIN) of the fund should be specified.
         The ISIN is a unique 12-character alphanumerical identifier.
     date : datetime.date
-        Date at which the `price` was last updated.
+        Date at which the `price` was last updated. If not specified, will be
+        initialized to the current one (at runtime).
     
     Parameters
     ----------

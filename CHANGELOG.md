@@ -2,9 +2,10 @@
 
 <!--next-version-placeholder-->
 
-## v0.2.1 (2022-11-28)
+## v0.2.1 (2022-11-29)
 
 - Set up continuous integration
+- Correct handling of current date
 
 ## v0.2.0 (2022-11-28)
 
