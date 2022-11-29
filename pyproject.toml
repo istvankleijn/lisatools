@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "lisatools"
-version = "0.2.1"
+version = "0.2.2"
 description = "Tools for monitoring my Lifetime ISA portfolio."
 authors = ["Istvan Kleijn"]
 license = "MIT"
@@ -25,6 +25,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.semantic_release]
 version_variable = "pyproject.toml:version" # location where new version will be written
 version_source = "tag"                      # get the current version from latest tag matching vX.Y.Z
+commit_version_number = true                # write version even though it is read from tags
 branch = "main"                             # branch to make releases of
 changelog_file = "CHANGELOG.md"             # changelog file
 build_command = "poetry build"              # build dists
@@ -33,3 +34,4 @@ upload_to_release = true                    # auto-create GitHub release
 upload_to_pypi = false                      # don't auto-upload to PyPI
 remove_dist = false                         # don't remove dists
 patch_without_tag = true                    # patch release by default
+major_on_zero = false                       # do not bump to 1.0.0 automatically
