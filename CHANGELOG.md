@@ -2,8 +2,12 @@
 
 <!--next-version-placeholder-->
 
+- Format code with Black
+- Lint code with flakeheaven
+
 ## v0.2.3 (2022-11-29)
 
+- Set up continuous deployment with PSR
 
 ## v0.2.1 (2022-11-29)
 
