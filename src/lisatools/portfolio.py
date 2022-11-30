@@ -183,7 +183,7 @@ class Portfolio(list):
         add_holding
         """
         if value is None:
-            if target == None:
+            if target is None:
                 value_new = units * fund.price
                 total_value = self.total_value() + value_new
                 target = value_new / total_value

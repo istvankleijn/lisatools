@@ -1,5 +1,4 @@
 import datetime
-from collections import namedtuple
 
 
 class Fund:
@@ -96,7 +95,7 @@ class ETF(Fund):
     price : float, default 1.0
     ticker : str or None, default None
     isin : str, default "None"
-    date : datetime.date, default datetime.date.today()
+    date : datetime.date or None, default None
 
     Examples
     --------
@@ -115,9 +114,7 @@ class ETF(Fund):
     ...     date=datetime.date(2022, 11, 21))
     """
 
-    def __init__(
-        self, name, price=1.0, *, ticker=None, isin="None", date=datetime.date.today()
-    ):
+    def __init__(self, name, price=1.0, *, ticker=None, isin="None", date=None):
         self.name = name
         if ticker is None:
             self.description = name

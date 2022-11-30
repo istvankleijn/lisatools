@@ -18,9 +18,7 @@ def ftse_global():
 
 @pytest.fixture
 def ftse_global_url():
-    return (
-        "https://markets.ft.com/data/funds/tearsheet/historical?s=GB00BD3RZ582:GBP"
-    )
+    return "https://markets.ft.com/data/funds/tearsheet/historical?s=GB00BD3RZ582:GBP"
 
 
 @pytest.fixture
@@ -59,7 +57,7 @@ def test_fund_init(ftse_global):
     f = ftse_global
     assert f.description == "FTSE Global All Cap Index Fund"
     assert f.price == 172.14
-    assert f.isin is "GB00BD3RZ582"
+    assert f.isin == "GB00BD3RZ582"
     assert f.date == datetime.date(2022, 11, 21)
 
 
@@ -78,7 +76,7 @@ def test_fund_update_price(ftse_global):
     f.update_price(170.14, date=datetime.date(2022, 11, 1))
     assert f.description == ftse_global.description
     assert f.price == 170.14
-    assert f.isin is "GB00BD3RZ582"
+    assert f.isin == "GB00BD3RZ582"
     assert f.date == datetime.date(2022, 11, 1)
 
 
@@ -89,7 +87,7 @@ def test_etf_init(gilts):
     assert f.description == "VGOV: U.K. Gilt UCITS ETF"
     assert f.price == 18.58
     assert f.ticker == "VGOV"
-    assert f.isin is "IE00B42WWV65"
+    assert f.isin == "IE00B42WWV65"
     assert f.date == datetime.date(2022, 11, 21)
 
 

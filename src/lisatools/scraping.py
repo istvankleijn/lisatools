@@ -19,8 +19,7 @@ def history_url(fund):
 @history_url.register(ETF)
 def _(fund):
     url = (
-        f"https://markets.ft.com/data/etfs/tearsheet/historical?",
-        f"s={fund.ticker}:LSE:GBP",
+        f"https://markets.ft.com/data/etfs/tearsheet/historical?s={fund.ticker}:LSE:GBP"
     )
     return url
 

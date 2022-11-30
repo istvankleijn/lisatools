@@ -17,6 +17,9 @@ myst-nb = "^0.17.1"
 sphinx-autoapi = "^2.0.0"
 sphinx-rtd-theme = "^1.0.0"
 python-semantic-release = "^7.32.2"
+black = "^22.10.0"
+flakeheaven = "^3.2.1"
+flake8-bugbear = "^22.10.27"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -35,3 +38,15 @@ upload_to_pypi = false                      # don't auto-upload to PyPI
 remove_dist = false                         # don't remove dists
 patch_without_tag = true                    # patch release by default
 major_on_zero = false                       # do not bump to 1.0.0 automatically
+
+[tool.flakeheaven]
+format = "grouped"                          # make output nice
+show_source = true                          # show line of source code in output
+
+[tool.flakeheaven.plugins]
+pyflakes = ["+*"]
+pycodestyle = ["+*"]
+flake8-bugbear = ["+*", "+B950"]
+
+[tool.flakeheaven.exceptions."src/lisatools/__init__.py"]
+pyflakes = ["-F401"]
