@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.2.4 (2022-11-30)
+### Fix
+* Fix issues from initial flakeheaven run ([`41a29a5`](https://github.com/istvankleijn/lisatools/commit/41a29a546ea61f643fd4d51b07e9ad02031632da))
+
 - Format code with Black
 - Lint code with flakeheaven
 
