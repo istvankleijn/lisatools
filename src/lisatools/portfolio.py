@@ -5,6 +5,16 @@ _str_prefix = """
 Description                       Units    Value Target ISIN         Date
 ------------------------------ -------- -------- ------ ------------ ----------
 """.strip()
+def _str_line(description, units, value, target, isin, date):
+    line = " ".join([
+            f"{description:<30}",
+            f"{units:>8.4f}",
+            f"{value:>8.2f}",
+            f"{target:>6.4f}",
+            f"{isin:<12}",
+            f"{date:%Y-%m-%d}"
+        ])
+    return line
 
 class Holding:
     """
@@ -39,7 +49,14 @@ class Holding:
         )
     
     def __str__(self):
-        line = self._str_line()
+        line = _str_line(
+            self.fund.description,
+            self.units,
+            self.value(),
+            self.target_fraction,
+            self.fund.isin,
+            self.fund.date
+        )
         return _str_prefix + "\n" + line
     
     def value(self):
@@ -61,9 +78,15 @@ class Holding:
         return line
     
 
-class Portfolio(list):
+class Portfolio():
     """
     A collection of funds held in defined amounts with target allocations.
+
+    Attributes
+    ----------
+    holdings: list
+        The funds held with their units held and target allocations, as a list
+        of `lisatools.Holding`s.
 
     Example
     -------
@@ -73,12 +96,23 @@ class Portfolio(list):
     >>> h2 = lisatools.Holding(lisatools.Fund("Fund 2", 2.0), 2.0, 0.4)
     >>> lisatools.Portfolio([h1, h2])
     """
+    def __init__(self, holdings=None):
+        self.holdings = list(holdings) if holdings is not None else []
+
     def __repr__(self):
-        holdings_repr = ", ".join(f"{holding!r}" for holding in self)
-        return "Portfolio(" + holdings_repr + ")"
+        holdings_repr = ", ".join(f"{holding!r}" for holding in self.holdings)
+        return "Portfolio([" + holdings_repr + "])"
     
     def __str__(self):
-        lines = "\n".join(holding._str_line() for holding in self)
+        lines = "\n".join(
+            _str_line(
+                holding.fund.description,
+                holding.units,
+                holding.value(),
+                holding.target_fraction,
+                holding.fund.isin,
+                holding.fund.date
+            ) for holding in self.holdings)
         return _str_prefix + "\n" + lines
 
     def total_value(self):
@@ -86,7 +120,7 @@ class Portfolio(list):
         Return the total value of all the holdings based on the latest fund
         prices available.
         """
-        return sum(holding.value() for holding in self)
+        return sum(holding.value() for holding in self.holdings)
 
     def add_holding(self, new_holding, scale_new=True):
         """
@@ -136,14 +170,14 @@ class Portfolio(list):
         Fund 4                           1.0000     1.00 0.5000 None         2022-11-23
         """
         if scale_new:
-            self.append(new_holding)
-            for holding in self:
+            self.holdings.append(new_holding)
+            for holding in self.holdings:
                 holding.target_fraction /= 1.0 + new_holding.target_fraction
         else:
             scale_factor = 1.0 - new_holding.target_fraction
-            for holding in self:
+            for holding in self.holdings:
                 holding.target_fraction *= scale_factor
-            self.append(new_holding)
+            self.holdings.append(new_holding)
     
     def add_fund(self, fund, *, value=None, units=1.0, target=None, **kwargs):
         """
@@ -180,7 +214,7 @@ class Portfolio(list):
         add_holding
         """
         if value is None:
-            if target == None:
+            if target is None:
                 value_new = units * fund.price
                 total_value = self.total_value() + value_new
                 target = value_new / total_value            
@@ -225,7 +259,7 @@ class Portfolio(list):
         """
         total_value = self.total_value()
         target = Portfolio()
-        for orig in self:
+        for orig in self.holdings:
             target_value = orig.target_fraction * total_value
             target_units = target_value / orig.fund.price
             holding = Holding(orig.fund, target_units, orig.target_fraction)
@@ -255,9 +289,9 @@ class Portfolio(list):
         if target_portfolio is None:
             target_portfolio = self.target_portfolio()
 
-        buy = Portfolio()
-        sell = Portfolio()
-        for orig, target in zip(self, target_portfolio):
+        buy = []
+        sell = []
+        for orig, target in zip(self.holdings, target_portfolio.holdings):
             diff = target.units - orig.units
             if diff > 0:
                 trade = Holding(orig.fund, diff, orig.target_fraction)
@@ -266,7 +300,7 @@ class Portfolio(list):
                 trade = Holding(orig.fund, -diff, orig.target_fraction)
                 sell.append(trade)
         
-        return buy, sell
+        return Portfolio(buy), Portfolio(sell)
     
     def update_prices(self):
         """
@@ -277,6 +311,6 @@ class Portfolio(list):
         using the `lisatools.scraping` module. It may take a couple of seconds
         to run.
         """
-        for holding in self:
+        for holding in self.holdings:
             price, date = scraping.latest_price(holding.fund)
             holding.fund.update_price(price, date=date)

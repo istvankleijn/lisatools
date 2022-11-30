@@ -118,8 +118,8 @@ def test_holding_value(p, u, res):
     assert h.value() == pytest.approx(res)
 
 def test_portfolio_repr(two_fund_6040):
-    holdings_repr = [repr(holding) for holding in two_fund_6040]
-    expected = "Portfolio(" + ", ".join(holdings_repr) + ")"
+    holdings_repr = [repr(holding) for holding in two_fund_6040.holdings]
+    expected = "Portfolio([" + ", ".join(holdings_repr) + "])"
     assert repr(two_fund_6040) == expected
 
 def test_portfolio_str(two_fund_6040):
