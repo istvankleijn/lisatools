@@ -131,6 +131,9 @@ class Portfolio:
             for holding in self.holdings
         )
         return _str_prefix + "\n" + lines
+    
+    def __iter__(self):
+        return iter(self.holdings)
 
     def __len__(self):
         return len(self.holdings)

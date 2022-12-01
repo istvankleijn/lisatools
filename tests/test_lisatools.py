@@ -159,6 +159,11 @@ VGOV: U.K. Gilt UCITS ETF        5.0000    92.90 0.4000 IE00B42WWV65 2022-11-21
     """.strip()
     assert str(two_fund_6040) == expected
 
+def test_portfolio_iter(two_fund_6040, ftse_global, gilts):
+    h1, h2 = two_fund_6040
+    assert h1 == lisatools.Holding(ftse_global, 1.0, 0.6)
+    assert h2 == lisatools.Holding(gilts, 5.0, 0.4)
+
 def test_portfolio_len(two_fund_6040):
     assert len(two_fund_6040) == 2
 
