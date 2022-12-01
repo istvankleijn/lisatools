@@ -50,7 +50,12 @@ def two_fund_6040_target(two_fund_6040):
 
 def test_fund_init(ftse_global):
     """Test the constructor of the `Fund` class"""
-    f = ftse_global
+    f = lisatools.Fund(
+        "FTSE Global All Cap Index Fund",
+        172.14,
+        isin="GB00BD3RZ582",
+        date=datetime.date(2022, 11, 21)
+    )
     assert f.description == "FTSE Global All Cap Index Fund"
     assert f.price == 172.14
     assert f.isin is "GB00BD3RZ582"
@@ -61,6 +66,15 @@ def test_fund_repr(ftse_global):
     f = ftse_global
     assert repr(f) == f"Fund({f.description!r}, {f.price!r}, " \
                       f"date={f.date!r}, isin={f.isin!r})"
+
+def test_fund_eq(ftse_global):
+    f = lisatools.Fund(
+        "FTSE Global All Cap Index Fund",
+        172.14,
+        isin="GB00BD3RZ582",
+        date=datetime.date(2022, 11, 21)
+    )
+    f == ftse_global
 
 def test_fund_update_price(ftse_global):
     """Test the `update_price` method of the `Fund` class."""
@@ -104,6 +118,11 @@ FTSE Global All Cap Index Fund   1.0000   172.14 0.6000 GB00BD3RZ582 2022-11-21
     """.strip()
     assert str(holding) == expected
 
+def test_holding_eq(ftse_global):
+    h1 = lisatools.Holding(ftse_global, 1.0, 0.6)
+    h2 = lisatools.Holding(ftse_global, target_fraction=0.6)
+    assert h1 == h2
+
 @pytest.mark.parametrize(
     "p, u, res",
     [
@@ -116,6 +135,14 @@ def test_holding_value(p, u, res):
     f = lisatools.Fund(price = p)
     h = lisatools.Holding(f, units = u)
     assert h.value() == pytest.approx(res)
+
+def test_portfolio_init(ftse_global, gilts):
+    pf = lisatools.Portfolio()
+    assert pf.holdings == []
+    h1 = lisatools.Holding(ftse_global, 1.0, 0.6)
+    h2 = lisatools.Holding(gilts, 5.0, 0.4)
+    pf = lisatools.Portfolio([h1, h2])
+    assert pf.holdings == [h1, h2]
 
 def test_portfolio_repr(two_fund_6040):
     holdings_repr = [repr(holding) for holding in two_fund_6040.holdings]
@@ -131,6 +158,22 @@ FTSE Global All Cap Index Fund   1.0000   172.14 0.6000 GB00BD3RZ582 2022-11-21
 VGOV: U.K. Gilt UCITS ETF        5.0000    92.90 0.4000 IE00B42WWV65 2022-11-21
     """.strip()
     assert str(two_fund_6040) == expected
+
+def test_portfolio_len(two_fund_6040):
+    assert len(two_fund_6040) == 2
+
+def test_portfolio_getitem(two_fund_6040, ftse_global, gilts):
+    h1 = two_fund_6040[0]
+    h2 = two_fund_6040[1]
+    assert type(h1) == lisatools.Holding
+    assert h1.fund == ftse_global
+    assert h2.fund == gilts
+
+def test_portfolio_eq(ftse_global, gilts, two_fund_6040):
+    h1 = lisatools.Holding(ftse_global, 1.0, 0.6)
+    h2 = lisatools.Holding(gilts, 5.0, 0.4)
+    pf = lisatools.Portfolio([h1, h2])
+    assert pf == two_fund_6040
 
 @pytest.mark.parametrize(
     "scale_new, res1, res2",
