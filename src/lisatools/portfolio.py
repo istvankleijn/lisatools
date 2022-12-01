@@ -1,3 +1,4 @@
+import numbers
 from lisatools import scraping
 
 
@@ -114,6 +115,18 @@ class Portfolio():
                 holding.fund.date
             ) for holding in self.holdings)
         return _str_prefix + "\n" + lines
+
+    def __len__(self):
+        return len(self.holdings)
+    
+    def __getitem__(self, index):
+        cls = type(self)
+        if isinstance(index, slice):
+            return cls(self.holdings[index])
+        elif isinstance(index, numbers.Integral):
+            return self.holdings[index]
+        else:
+            raise TypeError(f"{cls.__name__!r} indices must be integers")
 
     def total_value(self):
         """
@@ -248,9 +261,13 @@ class Portfolio():
     
     def target_portfolio(self):
         """
-        Based on the allocation fractions specified in the current portfolio,
-        construct a target portfolio with the same total value where these
-        fractions are exactly met.
+        Construct the 'ideal' target portfolio based on the allocation fractions
+        of the original.
+
+        The number of units held in the target portfolio is such that the
+        original allocation fractions are exactly satisfied. The target 
+        portfolio has the same allocation fractions as those of the current 
+        portfolio, and the same total monetary value.
 
         Returns
         -------
@@ -258,13 +275,13 @@ class Portfolio():
             The constructed target portfolio.      
         """
         total_value = self.total_value()
-        target = Portfolio()
+        target_holdings = []
         for orig in self.holdings:
             target_value = orig.target_fraction * total_value
             target_units = target_value / orig.fund.price
             holding = Holding(orig.fund, target_units, orig.target_fraction)
-            target.append(holding)
-        return target
+            target_holdings.append(holding)
+        return Portfolio(target_holdings)
     
     def trade_to_target(self, target_portfolio=None):
         """
