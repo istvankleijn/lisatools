@@ -181,6 +181,30 @@ def test_portfolio_eq(ftse_global, gilts, two_fund_6040):
     assert pf == two_fund_6040
 
 @pytest.mark.parametrize(
+    "units, target_fractions",
+    [
+        (None, None),
+        ([1.0, 5.0], None),
+        (None, [0.6, 0.4]),
+        ([1.0, 5.0], [0.6, 0.4]),
+    ]
+)
+def test_portfolio_from_funds(ftse_global, gilts, units, target_fractions):
+    pf = lisatools.Portfolio.from_funds(
+        [ftse_global, gilts],
+        units=units,
+        target_fractions=target_fractions
+    )
+    if units is None:
+        units = [1.0, 1.0] 
+    if target_fractions is None:
+        target_fractions = [0.5, 0.5]
+    h1 = lisatools.Holding(ftse_global, units[0], target_fractions[0])
+    h2 = lisatools.Holding(gilts, units[1], target_fractions[1])
+    expected = lisatools.Portfolio([h1, h2])
+    assert pf == expected
+
+@pytest.mark.parametrize(
     "scale_new, res1, res2",
     [
         (True, 1.0/1.5, 0.5/1.5),

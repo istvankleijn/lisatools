@@ -131,7 +131,7 @@ class Portfolio:
             for holding in self.holdings
         )
         return _str_prefix + "\n" + lines
-    
+
     def __iter__(self):
         return iter(self.holdings)
 
@@ -146,7 +146,7 @@ class Portfolio:
             return self.holdings[index]
         else:
             raise TypeError(f"{cls.__name__!r} indices must be integers")
-    
+
     def __eq__(self, other):
         return self.holdings == other.holdings
 
@@ -156,6 +156,44 @@ class Portfolio:
         prices available.
         """
         return sum(holding.value() for holding in self.holdings)
+
+    @classmethod
+    def from_funds(cls, funds, *, units=None, target_fractions=None):
+        """
+        Construct a portfolio from an iterable of funds, with optional units
+        held and target allocations.
+
+        Parameters
+        ----------
+        fund : iterable
+            Funds to be held in the portfolio.
+        units : iterable or None, default None
+            Units of each fund to be held. Defaults to one unit of each fund.
+        target_fractions : iterable or None, default None
+            Target allocation fractions. Defaults to equal fractions of each
+            fund, all adding up to 1.
+
+        Example
+        -------
+        >>> fund1 = lisatools.Fund("Fund 1", 100.0)
+        >>> fund2 = lisatools.Fund("Fund 2", 200.0)
+        >>> units = [1.0, 2.0]
+        >>> target_fractions = [0.2, 0.8]
+        >>> pf = lisatools.Portfolio(
+        ...     [fund1, fund2],
+        ...     units=units,
+        ...     target_fractions=target_fractions
+        ... )
+        """
+        # Add error if lengths do not match
+        if units is None:
+            units = [1.0 for fund in funds]
+        if target_fractions is None:
+            target_fractions = [1.0/len(funds) for fund in funds]
+        holdings = []
+        for fund, units_held, target in zip(funds, units, target_fractions):
+            holdings.append(Holding(fund, units_held, target))
+        return cls(holdings)
 
     def add_holding(self, new_holding, scale_new=True):
         """
