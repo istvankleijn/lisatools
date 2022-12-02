@@ -23,6 +23,12 @@ jobs:
     - name: Install package
       run: poetry install
     
+    - name: Force formatting with black
+      run: poetry run black ./src/ ./tests/
+    
+    - name: Lint with flakeheaven
+      run: poetry run flakeheaven lint ./src/ ./tests/
+    
     - name: Test with pytest
       run: poetry run pytest tests/ --cov=lisatools --cov-branch --cov-report=xml
     

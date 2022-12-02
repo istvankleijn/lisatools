@@ -18,9 +18,7 @@ def ftse_global():
 
 @pytest.fixture
 def ftse_global_url():
-    return (
-        "https://markets.ft.com/data/funds/tearsheet/historical?" "s=GB00BD3RZ582:GBP"
-    )
+    return "https://markets.ft.com/data/funds/tearsheet/historical?s=GB00BD3RZ582:GBP"
 
 
 @pytest.fixture
@@ -37,7 +35,7 @@ def gilts():
 
 @pytest.fixture
 def gilts_url():
-    return "https://markets.ft.com/data/etfs/tearsheet/historical?" "s=VGOV:LSE:GBP"
+    return "https://markets.ft.com/data/etfs/tearsheet/historical?s=VGOV:LSE:GBP"
 
 
 @pytest.fixture
@@ -64,7 +62,7 @@ def test_fund_init(ftse_global):
     )
     assert f.description == "FTSE Global All Cap Index Fund"
     assert f.price == 172.14
-    assert f.isin is "GB00BD3RZ582"
+    assert f.isin == "GB00BD3RZ582"
     assert f.date == datetime.date(2022, 11, 21)
 
 
@@ -76,7 +74,6 @@ def test_fund_repr(ftse_global):
         f"date={f.date!r}, isin={f.isin!r})"
     )
 
-
 def test_fund_eq(ftse_global):
     f = lisatools.Fund(
         "FTSE Global All Cap Index Fund",
@@ -86,14 +83,13 @@ def test_fund_eq(ftse_global):
     )
     f == ftse_global
 
-
 def test_fund_update_price(ftse_global):
     """Test the `update_price` method of the `Fund` class."""
     f = ftse_global
     f.update_price(170.14, date=datetime.date(2022, 11, 1))
     assert f.description == ftse_global.description
     assert f.price == 170.14
-    assert f.isin is "GB00BD3RZ582"
+    assert f.isin == "GB00BD3RZ582"
     assert f.date == datetime.date(2022, 11, 1)
 
 
@@ -104,7 +100,7 @@ def test_etf_init(gilts):
     assert f.description == "VGOV: U.K. Gilt UCITS ETF"
     assert f.price == 18.58
     assert f.ticker == "VGOV"
-    assert f.isin is "IE00B42WWV65"
+    assert f.isin == "IE00B42WWV65"
     assert f.date == datetime.date(2022, 11, 21)
 
 
@@ -140,7 +136,6 @@ def test_holding_eq(ftse_global):
     h2 = lisatools.Holding(ftse_global, target_fraction=0.6)
     assert h1 == h2
 
-
 @pytest.mark.parametrize(
     "p, u, res",
     [
@@ -162,7 +157,6 @@ def test_portfolio_init(ftse_global, gilts):
     h2 = lisatools.Holding(gilts, 5.0, 0.4)
     pf = lisatools.Portfolio([h1, h2])
     assert pf.holdings == [h1, h2]
-
 
 def test_portfolio_repr(two_fund_6040):
     holdings_repr = [repr(holding) for holding in two_fund_6040.holdings]
@@ -231,7 +225,6 @@ def test_portfolio_from_funds(ftse_global, gilts, units, target_fractions):
         pf2 = lisatools.Portfolio.from_funds([ftse_global, gilts], units=[])
     with pytest.raises(ValueError):
         pf3 = lisatools.Portfolio.from_funds([ftse_global, gilts], target_fractions=[])
-
 
 @pytest.mark.parametrize(
     "scale_new, res1, res2",
