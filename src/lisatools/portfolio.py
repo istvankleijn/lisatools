@@ -185,11 +185,17 @@ class Portfolio:
         ...     target_fractions=target_fractions
         ... )
         """
-        # Add error if lengths do not match
         if units is None:
             units = [1.0 for fund in funds]
         if target_fractions is None:
-            target_fractions = [1.0/len(funds) for fund in funds]
+            target_fractions = [1.0 / len(funds) for fund in funds]
+
+        n_funds = len(funds)
+        if len(units) != n_funds:
+            raise ValueError(f"unequal lengths for {funds=} and {units=}")
+        if len(target_fractions) != n_funds:
+            raise ValueError(f"unequal lengths for {funds=} and {target_fractions=}")
+
         holdings = []
         for fund, units_held, target in zip(funds, units, target_fractions):
             holdings.append(Holding(fund, units_held, target))
