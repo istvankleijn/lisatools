@@ -51,6 +51,14 @@ class Fund:
             f"date={self.date!r}, isin={self.isin!r})"
         )
 
+    def __eq__(self, other):
+        return (
+            self.description == other.description
+            and self.price == other.price
+            and self.date == other.date
+            and self.isin == other.isin
+        )
+
     def update_price(self, price, *, date=None):
         """
         Set the price of the fund to a given value and optionally specify the

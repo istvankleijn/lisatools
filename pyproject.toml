@@ -45,7 +45,7 @@ show_source = true                          # show line of source code in output
 
 [tool.flakeheaven.plugins]
 pyflakes = ["+*"]
-pycodestyle = ["+*"]
+pycodestyle = ["+*", "-E203", "-W503"]
 flake8-bugbear = ["+*", "+B950"]
 
 [tool.flakeheaven.exceptions."src/lisatools/__init__.py"]

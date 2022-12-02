@@ -1,3 +1,4 @@
+import numbers
 from lisatools import scraping
 
 
@@ -5,6 +6,20 @@ _str_prefix = """
 Description                       Units    Value Target ISIN         Date
 ------------------------------ -------- -------- ------ ------------ ----------
 """.strip()
+
+
+def _str_line(description, units, value, target, isin, date):
+    line = " ".join(
+        [
+            f"{description:<30}",
+            f"{units:>8.4f}",
+            f"{value:>8.2f}",
+            f"{target:>6.4f}",
+            f"{isin:<12}",
+            f"{date:%Y-%m-%d}",
+        ]
+    )
+    return line
 
 
 class Holding:
@@ -39,8 +54,22 @@ class Holding:
         return f"Holding({self.fund!r}, {self.units!r}, {self.target_fraction!r})"
 
     def __str__(self):
-        line = self._str_line()
+        line = _str_line(
+            self.fund.description,
+            self.units,
+            self.value(),
+            self.target_fraction,
+            self.fund.isin,
+            self.fund.date,
+        )
         return _str_prefix + "\n" + line
+
+    def __eq__(self, other):
+        return (
+            self.fund == other.fund
+            and self.units == other.units
+            and self.target_fraction == other.target_fraction
+        )
 
     def value(self):
         """
@@ -63,9 +92,15 @@ class Holding:
         return line
 
 
-class Portfolio(list):
+class Portfolio:
     """
     A collection of funds held in defined amounts with target allocations.
+
+    Attributes
+    ----------
+    holdings: list
+        The funds held with their units held and target allocations, as a list
+        of `lisatools.Holding`s.
 
     Example
     -------
@@ -76,20 +111,95 @@ class Portfolio(list):
     >>> lisatools.Portfolio([h1, h2])
     """
 
+    def __init__(self, holdings=None):
+        self.holdings = list(holdings) if holdings is not None else []
+
     def __repr__(self):
-        holdings_repr = ", ".join(f"{holding!r}" for holding in self)
-        return "Portfolio(" + holdings_repr + ")"
+        holdings_repr = ", ".join(f"{holding!r}" for holding in self.holdings)
+        return "Portfolio([" + holdings_repr + "])"
 
     def __str__(self):
-        lines = "\n".join(holding._str_line() for holding in self)
+        lines = "\n".join(
+            _str_line(
+                holding.fund.description,
+                holding.units,
+                holding.value(),
+                holding.target_fraction,
+                holding.fund.isin,
+                holding.fund.date,
+            )
+            for holding in self.holdings
+        )
         return _str_prefix + "\n" + lines
+
+    def __iter__(self):
+        return iter(self.holdings)
+
+    def __len__(self):
+        return len(self.holdings)
+
+    def __getitem__(self, index):
+        cls = type(self)
+        if isinstance(index, slice):
+            return cls(self.holdings[index])
+        elif isinstance(index, numbers.Integral):
+            return self.holdings[index]
+        else:
+            raise TypeError(f"{cls.__name__!r} indices must be integers")
+
+    def __eq__(self, other):
+        return self.holdings == other.holdings
 
     def total_value(self):
         """
         Return the total value of all the holdings based on the latest fund
         prices available.
         """
-        return sum(holding.value() for holding in self)
+        return sum(holding.value() for holding in self.holdings)
+
+    @classmethod
+    def from_funds(cls, funds, *, units=None, target_fractions=None):
+        """
+        Construct a portfolio from an iterable of funds, with optional units
+        held and target allocations.
+
+        Parameters
+        ----------
+        fund : iterable
+            Funds to be held in the portfolio.
+        units : iterable or None, default None
+            Units of each fund to be held. Defaults to one unit of each fund.
+        target_fractions : iterable or None, default None
+            Target allocation fractions. Defaults to equal fractions of each
+            fund, all adding up to 1.
+
+        Example
+        -------
+        >>> fund1 = lisatools.Fund("Fund 1", 100.0)
+        >>> fund2 = lisatools.Fund("Fund 2", 200.0)
+        >>> units = [1.0, 2.0]
+        >>> target_fractions = [0.2, 0.8]
+        >>> pf = lisatools.Portfolio(
+        ...     [fund1, fund2],
+        ...     units=units,
+        ...     target_fractions=target_fractions
+        ... )
+        """
+        if units is None:
+            units = [1.0 for fund in funds]
+        if target_fractions is None:
+            target_fractions = [1.0 / len(funds) for fund in funds]
+
+        n_funds = len(funds)
+        if len(units) != n_funds:
+            raise ValueError(f"unequal lengths for {funds=} and {units=}")
+        if len(target_fractions) != n_funds:
+            raise ValueError(f"unequal lengths for {funds=} and {target_fractions=}")
+
+        holdings = []
+        for fund, units_held, target in zip(funds, units, target_fractions):
+            holdings.append(Holding(fund, units_held, target))
+        return cls(holdings)
 
     def add_holding(self, new_holding, scale_new=True):
         """
@@ -139,14 +249,14 @@ class Portfolio(list):
         Fund 4                           1.0000     1.00 0.5000 None         2022-11-23
         """
         if scale_new:
-            self.append(new_holding)
-            for holding in self:
+            self.holdings.append(new_holding)
+            for holding in self.holdings:
                 holding.target_fraction /= 1.0 + new_holding.target_fraction
         else:
             scale_factor = 1.0 - new_holding.target_fraction
-            for holding in self:
+            for holding in self.holdings:
                 holding.target_fraction *= scale_factor
-            self.append(new_holding)
+            self.holdings.append(new_holding)
 
     def add_fund(self, fund, *, value=None, units=1.0, target=None, **kwargs):
         """
@@ -217,9 +327,13 @@ class Portfolio(list):
 
     def target_portfolio(self):
         """
-        Based on the allocation fractions specified in the current portfolio,
-        construct a target portfolio with the same total value where these
-        fractions are exactly met.
+        Construct the 'ideal' target portfolio based on the allocation fractions
+        of the original.
+
+        The number of units held in the target portfolio is such that the
+        original allocation fractions are exactly satisfied. The target
+        portfolio has the same allocation fractions as those of the current
+        portfolio, and the same total monetary value.
 
         Returns
         -------
@@ -227,13 +341,13 @@ class Portfolio(list):
             The constructed target portfolio.
         """
         total_value = self.total_value()
-        target = Portfolio()
-        for orig in self:
+        target_holdings = []
+        for orig in self.holdings:
             target_value = orig.target_fraction * total_value
             target_units = target_value / orig.fund.price
             holding = Holding(orig.fund, target_units, orig.target_fraction)
-            target.append(holding)
-        return target
+            target_holdings.append(holding)
+        return Portfolio(target_holdings)
 
     def trade_to_target(self, target_portfolio=None):
         """
@@ -258,9 +372,9 @@ class Portfolio(list):
         if target_portfolio is None:
             target_portfolio = self.target_portfolio()
 
-        buy = Portfolio()
-        sell = Portfolio()
-        for orig, target in zip(self, target_portfolio):
+        buy = []
+        sell = []
+        for orig, target in zip(self.holdings, target_portfolio.holdings):
             diff = target.units - orig.units
             if diff > 0:
                 trade = Holding(orig.fund, diff, orig.target_fraction)
@@ -269,7 +383,7 @@ class Portfolio(list):
                 trade = Holding(orig.fund, -diff, orig.target_fraction)
                 sell.append(trade)
 
-        return buy, sell
+        return Portfolio(buy), Portfolio(sell)
 
     def update_prices(self):
         """
@@ -280,6 +394,6 @@ class Portfolio(list):
         using the `lisatools.scraping` module. It may take a couple of seconds
         to run.
         """
-        for holding in self:
+        for holding in self.holdings:
             price, date = scraping.latest_price(holding.fund)
             holding.fund.update_price(price, date=date)
