@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.3.1 (2022-12-21)
+### Documentation
+* Updated example notebook ([`8d88a84`](https://github.com/istvankleijn/lisatools/commit/8d88a84c645b2865962ace4c732d443c324db135))
+
 ## v0.3.0 (2022-12-02)
 ### Feature
 * **Portfolio:** Construct portfolio directly from funds ([`98d3185`](https://github.com/istvankleijn/lisatools/commit/98d31854178d0a449a273132497a9fa55ea40778))
