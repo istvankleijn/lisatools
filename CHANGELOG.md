@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.3.2 (2022-12-21)
+### Fix
+* Add dependencies for scraping ([`8b666ec`](https://github.com/istvankleijn/lisatools/commit/8b666ec98a284cd12c701fe25d447238878ae937))
+
 ## v0.3.1 (2022-12-21)
 ### Documentation
 * Updated example notebook ([`8d88a84`](https://github.com/istvankleijn/lisatools/commit/8d88a84c645b2865962ace4c732d443c324db135))
