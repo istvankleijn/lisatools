@@ -91,6 +91,33 @@ class Holding:
         )
         return line
 
+    def as_dict(self):
+        """
+        Encode the holding as a dictionary.
+        """
+        return {
+            "fund": self.fund,
+            "units": self.units,
+            "target_fraction": self.target_fraction,
+        }
+
+    @classmethod
+    def from_dict(cls, d):
+        """
+        Construct a lisatools.Holding from a dictionary, respecting the class
+        constructor defaults.
+
+        Parameters
+        ----------
+        d : dict
+            The dictionary from which the Holding is constructed.
+        """
+        return cls(
+            d["fund"],
+            d.get("units", 1.0),
+            d.get("target_fraction", 0.0),
+        )
+
 
 class Portfolio:
     """

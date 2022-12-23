@@ -5,7 +5,7 @@ class Fund:
     """
     Details of a fund, including its current market price.
 
-    Parameters
+    Attributes
     ----------
     description : str
         Description of the fund, for example the name given by its provider.
@@ -74,6 +74,40 @@ class Fund:
         """
         self.price = price
         self.date = date if date is not None else datetime.date.today()
+
+    def as_dict(self):
+        """
+        Encode the fund as a dictionary.
+
+        The ISIN is encoded with dictionary key 'ISIN'; the other keys are equal to the
+        names of the class attributes.
+        """
+        return {
+            "ISIN": self.isin,
+            "description": self.description,
+            "price": self.price,
+            "date": self.date,
+        }
+
+    @classmethod
+    def from_dict(cls, d):
+        """
+        Construct a lisatools.Fund from a dictionary, respecting the class
+        constructor defaults.
+
+        The `isin` class attribute is set from the 'ISIN' dictionary key.
+
+        Parameters
+        ----------
+        d : dict
+            The dictionary from which the Fund is constructed.
+        """
+        return cls(
+            d["description"],
+            d["price"],
+            isin=d.get("ISIN", "None"),
+            date=d.get("date", None),
+        )
 
 
 class ETF(Fund):
