@@ -68,12 +68,22 @@ class Fund:
         ----------
         price : float
             The new price of one unit of the fund.
-        date : datetime.date or None, default None
-            The date when the fund had the given price. If left unspecified, the
-            date is set to the current one (at runtime).
+        date : datetime.date, str, or None, default None
+            The date when the fund had the given price. Can be provided as an
+            ISO-formatted date string. If left unspecified, the date is set to the
+            current one (at runtime).
         """
         self.price = price
-        self.date = date if date is not None else datetime.date.today()
+        if isinstance(date, datetime.date):
+            self.date = date
+        elif isinstance(date, str):
+            self.date = datetime.date.fromisoformat(date)
+        elif date is None:
+            self.date = datetime.date.today()
+        else:
+            raise TypeError(
+                "date must be a `datetime.date` or an ISO-formatted date string"
+            )
 
     def as_dict(self):
         """

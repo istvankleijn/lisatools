@@ -96,14 +96,21 @@ def test_fund_eq(ftse_global):
     assert f == ftse_global
 
 
-def test_fund_update_price(ftse_global):
+@pytest.mark.parametrize(
+    "price, date",
+    [(170.14, datetime.date(2022, 11, 1)), (170.14, "2022-11-01"), (100.00, None)],
+)
+def test_fund_update_price(ftse_global, price, date):
     """Test the `update_price` method of the `Fund` class."""
     f = ftse_global
-    f.update_price(170.14, date=datetime.date(2022, 11, 1))
+    f.update_price(price, date=date)
     assert f.description == ftse_global.description
-    assert f.price == 170.14
-    assert f.isin == "GB00BD3RZ582"
-    assert f.date == datetime.date(2022, 11, 1)
+    assert f.price == price
+    assert f.isin == ftse_global.isin
+    if date is None:
+        assert f.date == datetime.date.today()
+    else:
+        assert f.date == datetime.date(2022, 11, 1)
 
 
 def test_fund_as_dict(ftse_global):
