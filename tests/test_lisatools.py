@@ -17,6 +17,17 @@ def ftse_global():
 
 
 @pytest.fixture
+def ftse_global_dict():
+    d = {
+        "ISIN": "GB00BD3RZ582",
+        "description": "FTSE Global All Cap Index Fund",
+        "price": 172.14,
+        "date": datetime.date(2022, 11, 21),
+    }
+    return d
+
+
+@pytest.fixture
 def ftse_global_url():
     return "https://markets.ft.com/data/funds/tearsheet/historical?s=GB00BD3RZ582:GBP"
 
@@ -85,14 +96,40 @@ def test_fund_eq(ftse_global):
     assert f == ftse_global
 
 
-def test_fund_update_price(ftse_global):
+@pytest.mark.parametrize(
+    "price, date",
+    [(170.14, datetime.date(2022, 11, 1)), (170.14, "2022-11-01"), (100.00, None)],
+)
+def test_fund_update_price(ftse_global, price, date):
     """Test the `update_price` method of the `Fund` class."""
     f = ftse_global
-    f.update_price(170.14, date=datetime.date(2022, 11, 1))
+    f.update_price(price, date=date)
     assert f.description == ftse_global.description
-    assert f.price == 170.14
-    assert f.isin == "GB00BD3RZ582"
-    assert f.date == datetime.date(2022, 11, 1)
+    assert f.price == price
+    assert f.isin == ftse_global.isin
+    if date is None:
+        assert f.date == datetime.date.today()
+    else:
+        assert f.date == datetime.date(2022, 11, 1)
+
+
+def test_fund_as_dict(ftse_global):
+    d = ftse_global.as_dict()
+    assert d == {
+        "ISIN": ftse_global.isin,
+        "description": ftse_global.description,
+        "price": ftse_global.price,
+        "date": ftse_global.date,
+    }
+
+
+def test_fund_from_dict(ftse_global_dict, ftse_global):
+    f = lisatools.Fund.from_dict(ftse_global_dict)
+    assert f == ftse_global
+    d = {"description": "Two pounds", "price": 2.0}
+    f2 = lisatools.Fund.from_dict(d)
+    e = lisatools.Fund("Two pounds", 2.0)
+    assert f2 == e
 
 
 def test_etf_init(gilts):
@@ -151,6 +188,19 @@ def test_holding_value(p, u, res):
     f = lisatools.Fund(price=p)
     h = lisatools.Holding(f, units=u)
     assert h.value() == pytest.approx(res)
+
+
+def test_holding_as_dict(ftse_global):
+    h = lisatools.Holding(ftse_global, 1.0, 0.6)
+    d = h.as_dict()
+    assert d == {"fund": ftse_global, "units": 1.0, "target_fraction": 0.6}
+
+
+def test_holding_from_dict(ftse_global):
+    d = {"fund": ftse_global, "units": 2.0, "target_fraction": 0.6}
+    h = lisatools.Holding.from_dict(d)
+    e = lisatools.Holding(ftse_global, 2.0, 0.6)
+    assert h == e
 
 
 def test_portfolio_init(ftse_global, gilts):
@@ -332,6 +382,18 @@ def test_trade_to_target(
     assert sell[0].fund == ftse_global
     assert sell[0].units == pytest.approx(0.0761937957476474)
     assert sell[0].target_fraction == pytest.approx(0.6)
+
+
+def test_portfolio_load_save(tmp_path, two_fund_6040, gilts):
+    path = tmp_path / "two_fund_6040.json"
+    s = two_fund_6040.save(path)
+    assert s == two_fund_6040.save()
+    pf = lisatools.Portfolio.load(path)
+    assert type(pf) == lisatools.Portfolio
+    assert pf[0] == two_fund_6040[0]
+    assert pf[1].fund == gilts
+    assert type(pf[1].fund) == lisatools.ETF
+    assert pf == two_fund_6040
 
 
 def test_history_url_Fund(ftse_global, ftse_global_url):

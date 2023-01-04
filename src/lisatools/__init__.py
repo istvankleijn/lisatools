@@ -5,5 +5,7 @@ __version__ = version("lisatools")
 
 
 # populate package namespace
+from lisatools import io, scraping
+
 from lisatools.fund import Fund, ETF
 from lisatools.portfolio import Holding, Portfolio
