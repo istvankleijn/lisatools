@@ -1,4 +1,4 @@
-from lisatools.fund import Fund
+from lisatools.fund import ETF, Fund
 from lisatools.portfolio import Holding
 
 import datetime
@@ -14,8 +14,12 @@ class JSONDecoder(json.JSONDecoder):
             # assume it's a Holding
             return Holding.from_dict(d)
         elif "ISIN" in d:
-            # assume it's a Fund
-            return Fund.from_dict(d)
+            if "ticker" in d:
+                # assume it's an ETF
+                return ETF.from_dict(d)
+            else:
+                # assume it's a regular Fund
+                return Fund.from_dict(d)
         else:
             return d
 
