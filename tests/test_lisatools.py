@@ -384,6 +384,18 @@ def test_trade_to_target(
     assert sell[0].target_fraction == pytest.approx(0.6)
 
 
+def test_portfolio_load_save(tmp_path, two_fund_6040, gilts):
+    path = tmp_path / "two_fund_6040.json"
+    s = two_fund_6040.save(path)
+    assert s == two_fund_6040.save()
+    pf = lisatools.Portfolio.load(path)
+    assert type(pf) == lisatools.Portfolio
+    assert pf[0] == two_fund_6040[0]
+    assert pf[1].fund == gilts
+    assert type(pf[1].fund) == lisatools.ETF
+    assert pf == two_fund_6040
+
+
 def test_history_url_Fund(ftse_global, ftse_global_url):
     url = lisatools.scraping.history_url(ftse_global)
     assert url == ftse_global_url
