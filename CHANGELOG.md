@@ -2,6 +2,14 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.0 (2023-01-04)
+### Feature
+* Extend JSON saving/loading to handle ETF holdings ([`d4a007a`](https://github.com/istvankleijn/lisatools/commit/d4a007aa9758d73ec800d218619c9b4c67481341))
+* **Portfolio:** Add load and save functionality in JSON format ([`e2e383a`](https://github.com/istvankleijn/lisatools/commit/e2e383a707cc6b6a0fda3fa5ac23e52686c32b40))
+* Provide custom JSON encoder and decoder ([`e2d69e5`](https://github.com/istvankleijn/lisatools/commit/e2d69e5d7448cbb0cf1c3b61e7488a4bfa4ae4ec))
+* **Fund:** Use update_price to handle ISO strings ([`99e180e`](https://github.com/istvankleijn/lisatools/commit/99e180eaa89f937e799a5de89d8909404bc6a874))
+* Convert Funds/Holdings to/from dictionaries ([`3055b6f`](https://github.com/istvankleijn/lisatools/commit/3055b6f377efe945229e9025bd03e2daa195eff3))
+
 ## v0.3.2 (2022-12-21)
 ### Fix
 * Add dependencies for scraping ([`8b666ec`](https://github.com/istvankleijn/lisatools/commit/8b666ec98a284cd12c701fe25d447238878ae937))
