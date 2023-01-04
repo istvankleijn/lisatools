@@ -1,5 +1,7 @@
+import json
 import numbers
-from lisatools import scraping
+
+from lisatools import io, scraping
 
 
 _str_prefix = """
@@ -424,3 +426,58 @@ class Portfolio:
         for holding in self.holdings:
             price, date = scraping.latest_price(holding.fund)
             holding.fund.update_price(price, date=date)
+
+    def save(self, file=None, **kwargs):
+        """
+        Return the portfolio as a JSON string and optionally save to file, or print it
+        to stdout.
+
+        If a file is specified, it is opened in writing mode, truncating any previously
+        existing file.
+
+        Arguments
+        ---------
+        file : path-like object or None, default None
+            Path where a file is to be opened for writing. If left unspecified, the JSON
+            string is printed to screen.
+
+        Returns
+        -------
+        s : str
+            The JSON-formatted string that has been written to file or printed
+            to screen.
+
+        See also
+        --------
+        load
+        """
+        s = json.dumps(
+            self.holdings,
+            cls=io.JSONEncoder,
+            indent=4,
+            allow_nan=False,
+        )
+        if file is None:
+            print("No path provided. Test output:\n", s)
+        else:
+            with open(file, "w", **kwargs) as handle:
+                handle.write(s)
+        return s
+
+    @classmethod
+    def load(cls, file, **kwargs):
+        """
+        Construct a portfolio from a specified JSON file.
+
+        Arguments
+        ---------
+        file : path-like object
+            Path of the file to be read.
+
+        See also
+        --------
+        save
+        """
+        with open(file, "r", **kwargs) as handle:
+            holdings = json.load(handle, cls=io.JSONDecoder)
+        return cls(holdings)
