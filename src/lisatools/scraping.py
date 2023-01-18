@@ -1,9 +1,11 @@
-from lisatools.fund import ETF
-
 import datetime
 import functools
+
+import cachetools.func
 import requests
 from bs4 import BeautifulSoup
+
+from lisatools.fund import ETF
 
 
 @functools.singledispatch
@@ -24,10 +26,14 @@ def _(fund):
     return url
 
 
+@cachetools.func.ttl_cache
 def retrieve_history(url):
     """
     Find an HTML table from the FT's historical price data page that can be
     further processed by beautifulsoup.
+
+    The result is cached using `cachetools.TTLCache` with its default time-to-live of
+    600 seconds.
     """
     request = requests.get(url)
     soup = BeautifulSoup(request.content, "html.parser")
