@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.5.0 (2023-01-18)
+### Feature
+* Remember fund price data using time-to-live cache ([`d64c650`](https://github.com/istvankleijn/lisatools/commit/d64c65045257c6ec67b1cd7dd86e314e9a2471b8))
+* **Portfolio.save:** Optionally silence output ([`458babb`](https://github.com/istvankleijn/lisatools/commit/458babb4f551f0bf93354e946632cb1088ac10b9))
+* Provide command-line interface for price updates,  rebalancing, and new purchases ([`f43c4f3`](https://github.com/istvankleijn/lisatools/commit/f43c4f37d78dced00dc89a223b16234c56d91494))
+
 ## v0.4.0 (2023-01-04)
 ### Feature
 * Extend JSON saving/loading to handle ETF holdings ([`d4a007a`](https://github.com/istvankleijn/lisatools/commit/d4a007aa9758d73ec800d218619c9b4c67481341))
