@@ -1,0 +1,24 @@
+[
+    {
+        "fund": {
+            "ISIN": "GB00BD3RZ582",
+            "description": "FTSE Global All Cap Index Fund",
+            "price": 172.14,
+            "date": "2022-11-21"
+        },
+        "units": 1.0,
+        "target_fraction": 0.4
+    },
+    {
+        "fund": {
+            "ISIN": "IE00B42WWV65",
+            "description": "VGOV: U.K. Gilt UCITS ETF",
+            "ticker": "VGOV",
+            "name": "U.K. Gilt UCITS ETF",
+            "price": 18.58,
+            "date": "2022-11-21"
+        },
+        "units": 10.0,
+        "target_fraction": 0.6
+    }
+]
