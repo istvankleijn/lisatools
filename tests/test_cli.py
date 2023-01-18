@@ -1,5 +1,3 @@
-from pathlib import Path
-
 import pytest
 
 from lisatools import cli, Fund, Holding, Portfolio
@@ -85,9 +83,15 @@ def test_update(capsys, option, example_portfolio_path, example_portfolio):
     assert out.strip() == str(example_portfolio)
 
 
-@pytest.mark.parametrize("option", ("-c 100", "--add-cash 100"))
+@pytest.mark.parametrize(
+    "option",
+    (
+        ["-c", "200"],
+        ["--add-cash", "200"],
+    ),
+)
 def test_cash(capsys, option, example_portfolio_path, example_portfolio):
-    args = [str(example_portfolio_path), option]
+    args = [str(example_portfolio_path)] + option
     try:
         cli.main(args)
     except SystemExit:
@@ -95,13 +99,13 @@ def test_cash(capsys, option, example_portfolio_path, example_portfolio):
     out, err = capsys.readouterr()
     assert err == ""
     cash = Fund("Cash", price=100.0)
-    cash_value = float(option.split(" ")[-1])
+    cash_value = float(option[-1])
     example_portfolio.add_fund(cash, value=cash_value, target=0.0)
     assert out.strip() == str(example_portfolio)
 
 
 @pytest.mark.parametrize("option", ("-r", "--rebalance"))
-def test_update(capsys, option, example_portfolio_path, example_portfolio):
+def test_rebalance(capsys, option, example_portfolio_path, example_portfolio):
     args = [str(example_portfolio_path), option]
     try:
         cli.main(args)
