@@ -63,8 +63,6 @@ def main(args=None):
     if options.json is None:
         options.json = options.output_file is not None
 
-    print(options)
-
     pf = Portfolio.load(options.input)
 
     if options.update:
@@ -82,7 +80,7 @@ def main(args=None):
         ]
         pf = Portfolio(buy_holdings + sell_holdings)
 
-    s = pf.save(file=None) if options.json else str(pf)  # prints redundant output?
+    s = pf.save(file=None, silent=True) if options.json else str(pf)
     if options.output_file is None:
         print(s)
     else:

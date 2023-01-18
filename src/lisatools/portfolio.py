@@ -427,25 +427,27 @@ class Portfolio:
             price, date = scraping.latest_price(holding.fund)
             holding.fund.update_price(price, date=date)
 
-    def save(self, file=None, **kwargs):
+    def save(self, file=None, *, silent=False, **kwargs):
         """
-        Return the portfolio as a JSON string and optionally save to file, or print it
-        to stdout.
+        Return the portfolio as a JSON string and optionally save to file, and/or print
+        it to stdout.
 
         If a file is specified, it is opened in writing mode, truncating any previously
-        existing file.
+        existing file. By default, the string is written to stdout as well, but this
+        behaviour can be silenced (e.g. in the CLI).
 
         Arguments
         ---------
         file : path-like object or None, default None
-            Path where a file is to be opened for writing. If left unspecified, the JSON
-            string is printed to screen.
+            Path where a file is to be opened for writing. If left unspecified, no file
+            is written.
+        silent : bool, default False
+            If `True`, print the JSON string to stdout.
 
         Returns
         -------
         s : str
-            The JSON-formatted string that has been written to file or printed
-            to screen.
+            A JSON-formatted string representing the portfolio.
 
         See also
         --------
@@ -458,10 +460,12 @@ class Portfolio:
             allow_nan=False,
         )
         if file is None:
-            print("No path provided. Test output:\n", s)
+            pass
         else:
             with open(file, "w", **kwargs) as handle:
                 handle.write(s)
+        if not silent:
+            print(s)
         return s
 
     @classmethod
