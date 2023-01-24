@@ -1,5 +1,5 @@
 import json
-import numbers
+import operator
 
 from lisatools import io, scraping
 
@@ -167,14 +167,12 @@ class Portfolio:
     def __len__(self):
         return len(self.holdings)
 
-    def __getitem__(self, index):
-        cls = type(self)
-        if isinstance(index, slice):
-            return cls(self.holdings[index])
-        elif isinstance(index, numbers.Integral):
-            return self.holdings[index]
-        else:
-            raise TypeError(f"{cls.__name__!r} indices must be integers")
+    def __getitem__(self, key):
+        if isinstance(key, slice):
+            cls = type(self)
+            return cls(self.holdings[key])
+        index = operator.index(key)
+        return self.holdings[index]
 
     def __eq__(self, other):
         return self.holdings == other.holdings
