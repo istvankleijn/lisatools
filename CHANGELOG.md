@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.5.1 (2023-01-24)
+### Fix
+* **Portfolio.__getitem__:** Use operator.index ([`7402eca`](https://github.com/istvankleijn/lisatools/commit/7402eca4db71c4d946cc654a14a7ed4753f52b6f))
+
 ## v0.5.0 (2023-01-18)
 ### Feature
 * Remember fund price data using time-to-live cache ([`d64c650`](https://github.com/istvankleijn/lisatools/commit/d64c65045257c6ec67b1cd7dd86e314e9a2471b8))
